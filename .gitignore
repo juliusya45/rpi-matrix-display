@@ -2,5 +2,6 @@ __pycache__
 .DS_Store
 lib
 bin
+config.ini
 rpi-rgb-led-matrix
 impl/.cache
