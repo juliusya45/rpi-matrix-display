@@ -16,8 +16,8 @@ class WeatherScreen:
         self.icons = generateIconMap()
 
         self.text_color = literal_eval(config.get('Weather Screen', 'text_color', fallback="(255,255,255)"))
-        self.low_color = literal_eval(config.get('Weather Screen', 'low_color', fallback="(255,255,255)"))
-        self.high_color = literal_eval(config.get('Weather Screen', 'high_color', fallback="(255,255,255)"))
+        self.low_color = (12, 138, 235)
+        self.high_color = (235, 38, 12)
 
     def generate(self):
         

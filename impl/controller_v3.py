@@ -5,6 +5,8 @@ from apps_v2 import spotify_player
 from apps_v2 import weather
 from modules import spotify_module
 from modules import weather_module
+
+
 def main():
     canvas_width = 64
     canvas_height = 64
@@ -40,7 +42,7 @@ def main():
 
     # connect to Spotify and create display image
     modules = { 'spotify' : spotify_module.SpotifyModule(config) , 'weather' : weather_module.WeatherModule(config)}
-    app_list = [ spotify_player.SpotifyScreen(config, modules, is_full_screen_always), weather.WeatherScreen(config, modules, ) ]
+    app_list = [ spotify_player.SpotifyScreen(config, modules, is_full_screen_always), weather.WeatherScreen(config, modules) ]
 
     # setup matrix
     options = RGBMatrixOptions()
@@ -57,22 +59,74 @@ def main():
     black_screen = Image.new("RGB", (canvas_width, canvas_height), (0,0,0))
     last_active_time = math.floor(time.time())
 
+    # # # generate image
+    # while(True):
+    #     frame, is_playing = app_list[0].generate()
+    #     current_time = math.floor(time.time())
+    #
+    #     if frame is not None:
+    #         if is_playing:
+    #             last_active_time = math.floor(time.time())
+    #         elif current_time - last_active_time >= shutdown_delay:
+    #             frame = black_screen
+    #     if keyboard.is_pressed('space'):
+    #         frame = app_list[1].generate()
+    #     elif(frame is None ):
+    #         frame = black_screen
+    #
+    #     matrix.SetImage(frame)
+    #     time.sleep(0.08)
 
-    # generate image
-    while(True):
-        frame, is_playing = app_list[0].generate()
-        current_time = math.floor(time.time())
 
-        if frame is not None:
-            if is_playing:
-                last_active_time = math.floor(time.time())
-            elif current_time - last_active_time >= shutdown_delay:
-                frame = black_screen
-        else:
-            frame = app_list[1].generate()
-
+    def pressSpace():
+        frame = app_list[1].generate()
         matrix.SetImage(frame)
         time.sleep(0.08)
+        return frame
+
+    def pressS():
+        current_time = math.floor(time.time())
+        frame, is_playing = app_list[0].generate()
+        while(is_playing is False and frame is None):
+            frame, is_playing = app_list[0].generate()
+            print('no spotify')
+        while(is_playing is True):
+            print('got spotify')
+            frame, is_playing = app_list[0].generate()
+            if frame is not None:
+                if is_playing:
+                    last_active_time = math.floor(time.time())
+                elif current_time - last_active_time >= shutdown_delay:
+                    frame = black_screen
+            else:
+                frame = black_screen
+                is_playing = false
+            matrix.SetImage(frame)
+            time.sleep(0.08)
+
+        if frame != None:
+            matrix.SetImage(frame)
+            time.sleep(0.08)
+            return frame
+        return None
+
+
+    gloframe = None
+
+    while (True):
+        if(gloframe is None):
+            print('gloframe is none')
+            gloframe = black_screen
+        if(gloframe is not None):
+            if(keyboard.is_pressed('space')):
+                gloframe = pressSpace()
+            elif(keyboard.is_pressed('alt')):
+                gloframe = pressS()
+            matrix.SetImage(gloframe)
+            time.sleep(0.08)
+
+
+
 
 
 
