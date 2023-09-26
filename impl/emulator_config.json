@@ -1,4 +1,5 @@
 {
+    "suppress_adapter_load_errors": true,
     "pixel_size": 8,
     "pixel_style": "square",
     "display_adapter": "pygame",

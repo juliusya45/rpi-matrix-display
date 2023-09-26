@@ -1,10 +1,10 @@
-import os, inspect, sys, math, time, configparser, argparse
+import os, inspect, sys, math, time, configparser, argparse, keyboard
 from PIL import Image
 
 from apps_v2 import spotify_player
+from apps_v2 import weather
 from modules import spotify_module
-
-
+from modules import weather_module
 def main():
     canvas_width = 64
     canvas_height = 64
@@ -39,8 +39,8 @@ def main():
         sys.exit()
 
     # connect to Spotify and create display image
-    modules = { 'spotify' : spotify_module.SpotifyModule(config) }
-    app_list = [ spotify_player.SpotifyScreen(config, modules, is_full_screen_always) ]
+    modules = { 'spotify' : spotify_module.SpotifyModule(config) , 'weather' : weather_module.WeatherModule(config)}
+    app_list = [ spotify_player.SpotifyScreen(config, modules, is_full_screen_always), weather.WeatherScreen(config, modules, ) ]
 
     # setup matrix
     options = RGBMatrixOptions()
@@ -57,6 +57,7 @@ def main():
     black_screen = Image.new("RGB", (canvas_width, canvas_height), (0,0,0))
     last_active_time = math.floor(time.time())
 
+
     # generate image
     while(True):
         frame, is_playing = app_list[0].generate()
@@ -68,10 +69,12 @@ def main():
             elif current_time - last_active_time >= shutdown_delay:
                 frame = black_screen
         else:
-            frame = black_screen
+            frame = app_list[1].generate()
 
         matrix.SetImage(frame)
         time.sleep(0.08)
+
+
 
 
 if __name__ == '__main__':
