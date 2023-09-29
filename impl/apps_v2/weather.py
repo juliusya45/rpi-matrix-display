@@ -46,27 +46,38 @@ class WeatherScreen:
             draw.text((23,3), str(max_temp), self.high_color, font=self.font)
 
             draw.text((3,10), 'RAIN', self.text_color, font=self.font)
-            draw.text((21,10), str(rain) + '%', self.text_color, font=self.font)
+            draw.text((21,10), str(rain) + '%', (82, 180, 255), font=self.font)
 
             draw.text((3,24), 'HUMIDITY', self.text_color, font=self.font)
-            draw.text((37,24), str(humidity) + '%', self.text_color, font=self.font)
+            draw.text((37,24), str(humidity) + '%', (82, 180, 255), font=self.font)
 
             currentTime = datetime.now(tz=tz.tzlocal())
             if (currentTime.hour > dtsr.hour and currentTime.hour <= dtss.hour):
-                draw.text((3,17), 'SET', self.text_color, font=self.font)
+                draw.text((3,17), 'SET', self.text_color , font=self.font)
                 hours = dtss.hour % 12
                 if (hours == 0):
                     hours += 12 
-                draw.text((17,17), str(hours) + ':' + convertToTwoDigits(dtss.minute), self.text_color, font=self.font)
+                draw.text((17,17), str(hours) + ':' + convertToTwoDigits(dtss.minute), (0, 29, 217), font=self.font)
             else:
-                draw.text((3,17), 'RISE', self.text_color, font=self.font)
+                draw.text((3,17), 'RISE', (self.text_color), font=self.font)
                 hours = dtsr.hour % 12
                 if (hours == 0):
                     hours += 12 
-                draw.text((21,17), str(hours) + ':' + convertToTwoDigits(dtsr.minute), self.text_color, font=self.font)
+                draw.text((21,17), str(hours) + ':' + convertToTwoDigits(dtsr.minute), (245, 206, 66), font=self.font)
 
             if weather_icon_name in self.icons:
                 frame.paste(self.icons[weather_icon_name], (40,1))
+
+            # Dealing with time:
+            timeString = currentTime.strftime("%I:%M:%S %p")
+            dateString = currentTime.strftime("%a, %b %w")
+
+            #to center text:
+            wD, hD = self.font.getsize(dateString)
+            wT, hT = self.font.getsize(timeString)
+
+            draw.text(((64-wT)/2, 40), timeString, self.text_color, font=self.font)
+            draw.text(((64 - wD) / 2, 47), dateString, (161, 255, 220), font=self.font)
         
         return frame
 

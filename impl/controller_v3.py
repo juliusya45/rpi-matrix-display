@@ -92,6 +92,7 @@ def main():
         while(frame is not None):
             matrix.SetImage(frame)
             time.sleep(0.08)
+            frame = app_list[1].generate()
 
             #add other screens here
             if keyboard.is_pressed('alt'):
