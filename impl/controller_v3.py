@@ -1,5 +1,5 @@
 import os, inspect, sys, math, time, configparser, argparse, keyboard
-from PIL import Image
+from PIL import Image, ImageFont, ImageDraw
 
 from apps_v2 import spotify_player
 from apps_v2 import weather
@@ -57,7 +57,16 @@ def main():
 
     shutdown_delay = config.getint('Matrix', 'shutdown_delay', fallback=600)
     black_screen = Image.new("RGB", (canvas_width, canvas_height), (0,0,0))
-    last_active_time = math.floor(time.time())
+
+    #Drawing out warning screen for spotify:
+    no_spotify_screen = Image.new("RGB", (canvas_width, canvas_height), (0,0,0))
+    draw = ImageDraw.Draw(no_spotify_screen)
+    draw.text((11, 24), "Spotify Not", (255, 255, 255), ImageFont.truetype("fonts/tiny.otf", 5))
+    draw.text((19, 36), "Running", (255, 255, 255), ImageFont.truetype("fonts/tiny.otf", 5))
+
+
+
+    # last_active_time = math.floor(time.time())
 
     # # # generate image
     # while(True):
@@ -80,17 +89,25 @@ def main():
 
     def pressSpace():
         frame = app_list[1].generate()
-        matrix.SetImage(frame)
-        time.sleep(0.08)
+        while(frame is not None):
+            matrix.SetImage(frame)
+            time.sleep(0.08)
+
+            #add other screens here
+            if keyboard.is_pressed('alt'):
+                return pressS()
         return frame
 
     def pressS():
+        last_active_time = math.floor(time.time())
         current_time = math.floor(time.time())
         frame, is_playing = app_list[0].generate()
-        while(is_playing is False and frame is None):
+        count = 0
+        while(frame is None and count < 20):
             frame, is_playing = app_list[0].generate()
+            count += 1
             print('no spotify')
-        while(is_playing is True):
+        while(frame is not None):
             print('got spotify')
             frame, is_playing = app_list[0].generate()
             if frame is not None:
@@ -99,16 +116,21 @@ def main():
                 elif current_time - last_active_time >= shutdown_delay:
                     frame = black_screen
             else:
-                frame = black_screen
+                frame = no_spotify_screen
                 is_playing = false
+
+            # add other screens here
+            if keyboard.is_pressed('space'):
+                return pressSpace()
+
             matrix.SetImage(frame)
             time.sleep(0.08)
 
-        if frame != None:
-            matrix.SetImage(frame)
-            time.sleep(0.08)
-            return frame
-        return None
+        # if frame != None:
+        #     matrix.SetImage(frame)
+        #     time.sleep(0.08)
+        #     return frame
+        return no_spotify_screen
 
 
     gloframe = None
@@ -119,9 +141,13 @@ def main():
             gloframe = black_screen
         if(gloframe is not None):
             if(keyboard.is_pressed('space')):
+                switchedTime = math.floor(time.time())
                 gloframe = pressSpace()
             elif(keyboard.is_pressed('alt')):
+                switchedTime = math.floor(time.time())
                 gloframe = pressS()
+
+            firstTime = math.floor(time.time())
             matrix.SetImage(gloframe)
             time.sleep(0.08)
 
