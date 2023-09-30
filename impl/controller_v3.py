@@ -107,9 +107,9 @@ def main():
         while(frame is None and count < 20):
             frame, is_playing = app_list[0].generate()
             count += 1
-            print('no spotify')
+            #print('no spotify')
         while(frame is not None):
-            print('got spotify')
+            #print('got spotify')
             frame, is_playing = app_list[0].generate()
             if frame is not None:
                 if is_playing:
@@ -118,7 +118,7 @@ def main():
                     frame = black_screen
             else:
                 frame = no_spotify_screen
-                is_playing = false
+                is_playing = False
 
             # add other screens here
             if keyboard.is_pressed('space'):
