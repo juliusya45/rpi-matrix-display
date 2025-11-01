@@ -1,57 +1,95 @@
 # rpi-spotify-matrix-display
 
-A Spotify display for 64x64 RGB LED matrices
+A Spotify display for 64x64 RGB LED matrices.
+
+- **🎵 Spotify API Integration** – Show off your currently playing track
+- **🖼️ Multiple Modes** – Display album artwork alongside track details or fullscreen
+- **🚗 Scrolling Text** – Auto-scrolling text for long track titles and artist names
+- **⏯️ Playback Indicators** – Play/pause indicator and track progression bar
+- **🖥️ Emulator Support** – Test on your computer before deploying to a Raspberry Pi
+
+<br>
 
 ![emulator screenshot](screenshot.png)
 
-## Spotify Pre-Setup
-1. Go to https://developer.spotify.com/dashboard
-2. Create an account and/or login
-3. Select "Create an app" (name/description does not matter)
-4. Copy the generated Client ID and Secret ID for later
-5. Lastly, tap "Edit settings" and add http://localhost:8080/callback under Redirect URIs
+## Spotify Setup
+1. Go to the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
+2. Create a new app _(name/description can be anything)_
+3. Add http://127.0.0.1:8080/callback to Redirect URIs
+4. Save and copy the Client ID and Secret for later
 
-## Setup
-1. Clone the repo
-2. Enter the directory:
-   - `cd rpi-spotify-matrix-display/`
-3. **Set your Client ID and Secret ID in the config.ini**
-4. Update git submodules:
-   - `git submodule update --init --recursive`
-5. Install emulator dependencies (if not wanting to run emulated, you can skip this step):
-   - `pip install RGBMatrixEmulator`
-6. Run the app ([see below](#how-to-run))
-   - More dependencies may need to be installed via pip depending on your machine
-7. Authorize Spotify
-   - After running, follow instructions provided in the console. Pasted link should begin with http://localhost:8080/callback
-8. Enjoy!
-   - After successful authorization, play a song and the display will appear
+## Installation
+
+```bash
+# 1. Clone the repo
+git clone --recurse-submodules https://github.com/kylejohnsonkj/rpi-spotify-matrix-display
+
+# 2. Enter the repo
+cd rpi-spotify-matrix-display
+
+# 3. Make the project (will request client/secret)
+make
+```
 
 ## How to Run
-You can either run this project in an emulated state (separate window, browser, etc) or on an RGB LED matrix directly. Commands must be run from the `impl/` directory.
+```bash
+# For a Raspberry Pi connected to a matrix
+make run
 
-- To run emulated (on a PC/laptop):
-    - `python3 controller_v3.py -e`
-- To run on a matrix (connected to a raspberry pi), run elevated:
-    - `sudo python3 controller_v3.py`
+# Otherwise, emulate using
+make emulate
+```
 
-Options:
-| Argument | Default | Description |
-| :- | :- | :- |
-|`-e` , `--emulated`| false | Run in a matrix emulator |
-|`-f` , `--fullscreen`| false | Always display album art in full screen (64x64) |
-|`-h` , `--help`| false | Display help messages for arguments |
+After running, follow instructions provided in the console. Pasted link should begin with http://127.0.0.1:8080/callback. After successful authorization, play a song and the display will appear!
 
-## Configuration
-Configuration is handled in the config.ini. I have included my own as a sample.
+---
 
-For Matrix configuration, see https://github.com/hzeller/rpi-rgb-led-matrix#changing-parameters-via-command-line-flags. More extensive customization can be done in impl/controller_v3.py directly.
+### Building Your Own Display
 
-For Spotify configuration, set the client_id and client_secret to your own. You may leave redirect_uri alone. I have also included a device_whitelist (disabled by default).
+Don't have a Raspberry Pi or RGB matrix yet? No worries! Feel free to mess around with emulation and come back to this section once you're ready.
 
-## Acknowledgements
-Thanks to allenslab for providing the original codebase for this project, [matrix-dashboard](https://github.com/allenslab/matrix-dashboard). You can find his original reddit post [here](https://www.reddit.com/r/3Dprinting/comments/ujyy4g/i_designed_and_3d_printed_a_led_matrix_dashboard/). This project is an adaption of his Spotify app for 64x64 matrices, while also packing some other improvements.
+**Parts List**
 
-Thanks to ty-porter for [his fork](https://github.com/ty-porter/matrix-dashboard) of matrix-dashboard from which my development branched from. The emulation support his [RGBMatrixEmulator project](https://github.com/ty-porter/RGBMatrixEmulator) added made it a breeze to develop efficiently.
+- [Adafruit 64x64 RGB LED Matrix - 2.5mm Pitch - 1/32 Scan](https://www.adafruit.com/product/3649)
+- [Adafruit RGB Matrix Bonnet for Raspberry Pi](https://www.adafruit.com/product/3211)
+- [Raspberry Pi 3B+](https://www.raspberrypi.com/products/raspberry-pi-3-model-b-plus/) (or newer)
+- Any microSD card
+- [5V 10A Power Supply Adapter](https://www.amazon.com/gp/product/B08HCS1X66)
 
-And finally, thanks to hzeller for his work on [rpi-rgb-led-matrix](https://github.com/hzeller/rpi-rgb-led-matrix).
+I also 3d printed a [matrix stand](https://www.thingiverse.com/thing:3781875) and a [pi mount](https://www.thingiverse.com/thing:2732552) for my [own build](https://imgur.com/a/64x64-album-art-matrix-backside-AjrOa5e).
+
+Once you have all the parts, expand and proceed with the Rasperry Pi Setup below!
+
+<details>
+<summary>Raspberry Pi Setup</summary>
+
+#### Step 1: Install Pi OS
+- [Download and open the Raspberry Pi Imager](https://www.raspberrypi.com/software/)
+    - Select your Raspberry Pi
+    - Select `Raspberry Pi OS (other) - Raspberry Pi OS Lite (64-bit)`
+    - Select your microSD card
+- Tap "Next" and edit OS customization settings
+    - Set hostname (I put matrix), set user/pass (I kept user as pi)
+    - Enter wifi credentials
+    - Enable ssh using password authentication
+- When done, insert microSD card in pi and wait a few min for boot up
+
+#### Step 2: Login via ssh
+- `ssh pi@matrix.local`
+- This puts you in the `/home/pi` directory
+- You can use `pwd` to confirm where you are throughout this process
+
+#### Step 3: Update packages and install git
+- `sudo apt update` (get current list of packages)
+- `sudo apt upgrade` (upgrade out of date packages)
+- `sudo apt install git`
+
+#### Step 4: Proceed with the Installation instructions above
+</details>
+
+---
+
+### Acknowledgements
+- allenslab for creating the original [matrix-dashboard](https://www.reddit.com/r/3Dprinting/comments/ujyy4g/i_designed_and_3d_printed_a_led_matrix_dashboard/) code
+- typorter for the [RGBMatrixEmulator](https://github.com/ty-porter/RGBMatrixEmulator) project
+- hzeller for the [rpi-rgb-led-matrix](https://github.com/hzeller/rpi-rgb-led-matrix) library
