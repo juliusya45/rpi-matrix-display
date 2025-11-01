@@ -120,8 +120,8 @@ class SpotifyScreen:
                 freeze_title = self.title_animation_cnt == 0 and self.artist_animation_cnt > 0
                 freeze_artist = self.artist_animation_cnt == 0 and self.title_animation_cnt > 0
 
-                title_len = self.font.getsize(self.current_title)[0]
-                artist_len = self.font.getsize(self.current_artist)[0]
+                _, _, title_len, _ = self.font.getbbox(self.current_title)
+                _, _, artist_len, _ = self.font.getbbox(self.current_artist)
 
                 text_length = self.canvas_width - 12
                 x_offset = 1
@@ -129,9 +129,11 @@ class SpotifyScreen:
 
                 if title_len > text_length:
                     draw.text((x_offset-self.title_animation_cnt, 1), self.current_title + spacer + self.current_title, self.title_color, font = self.font)
+                    _, _, titleSize, _ = self.font.getbbox(self.current_title)
+                    titleSize += 5
                     if current_time - self.last_title_reset >= self.scroll_delay:
                         self.title_animation_cnt += 1
-                    if freeze_title or self.title_animation_cnt == self.font.getsize(self.current_title + spacer)[0]:
+                    if freeze_title or self.title_animation_cnt == titleSize:
                         self.title_animation_cnt = 0
                         self.last_title_reset = math.floor(time.time())
                 else:
@@ -139,9 +141,11 @@ class SpotifyScreen:
 
                 if artist_len > text_length:
                     draw.text((x_offset-self.artist_animation_cnt, 7), self.current_artist + spacer + self.current_artist, self.artist_color, font = self.font)
+                    _, _, artistSize, _ = self.font.getbbox(self.current_artist)
+                    artistSize += 5
                     if current_time - self.last_artist_reset >= self.scroll_delay:
                         self.artist_animation_cnt += 1
-                    if freeze_artist or self.artist_animation_cnt == self.font.getsize(self.current_artist + spacer)[0]:
+                    if freeze_artist or self.artist_animation_cnt == artistSize:
                         self.artist_animation_cnt = 0
                         self.last_artist_reset = math.floor(time.time())
                 else:

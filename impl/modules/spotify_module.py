@@ -1,16 +1,17 @@
 import os, math, time, spotipy
 from queue import LifoQueue
 
+
 class SpotifyModule:
     def __init__(self, config):
         self.invalid = False
         self.calls = 0
         self.queue = LifoQueue()
         self.config = config
-        
+
         if config is not None and 'Spotify' in config and 'client_id' in config['Spotify'] \
-            and 'client_secret' in config['Spotify'] and 'redirect_uri' in config['Spotify']:
-            
+                and 'client_secret' in config['Spotify'] and 'redirect_uri' in config['Spotify']:
+
             client_id = config['Spotify']['client_id']
             client_secret = config['Spotify']['client_secret']
             redirect_uri = config['Spotify']['redirect_uri']
@@ -34,7 +35,7 @@ class SpotifyModule:
         else:
             print("[Spotify Module] Missing config parameters")
             self.invalid = True
-    
+
     def isDeviceWhitelisted(self):
         if self.config is not None and 'Spotify' in self.config and 'device_whitelist' in self.config['Spotify']:
             try:
@@ -42,7 +43,7 @@ class SpotifyModule:
             except Exception as e:
                 print(e)
                 return False
-            
+
             device_whitelist = self.config['Spotify']['device_whitelist']
             for device in devices['devices']:
                 if device['name'] in device_whitelist and device['is_active']:
@@ -73,6 +74,7 @@ class SpotifyModule:
                     art_url = track['item']['album']['images'][0]['url']
                 self.isPlaying = track['is_playing']
 
-                self.queue.put((artist, title, art_url, self.isPlaying, track["progress_ms"], track["item"]["duration_ms"]))
+                self.queue.put(
+                    (artist, title, art_url, self.isPlaying, track["progress_ms"], track["item"]["duration_ms"]))
         except Exception as e:
             print(e)

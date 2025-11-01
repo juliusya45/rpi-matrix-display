@@ -1,13 +1,18 @@
 import os, inspect, sys, math, time, configparser, argparse, keyboard
 from PIL import Image, ImageFont, ImageDraw
+from multiprocessing import Process
 
 from apps_v2 import spotify_player
 from apps_v2 import weather
 from modules import spotify_module
 from modules import weather_module
 
+# Global Variables:
+last_time = time.perf_counter()
 
 def main():
+    global last_time
+    last_time = time.perf_counter()
     canvas_width = 64
     canvas_height = 64
 
@@ -65,38 +70,20 @@ def main():
     draw.text((19, 36), "Running", (255, 255, 255), ImageFont.truetype("fonts/tiny.otf", 5))
 
 
-
-    # last_active_time = math.floor(time.time())
-
-    # # # generate image
-    # while(True):
-    #     frame, is_playing = app_list[0].generate()
-    #     current_time = math.floor(time.time())
-    #
-    #     if frame is not None:
-    #         if is_playing:
-    #             last_active_time = math.floor(time.time())
-    #         elif current_time - last_active_time >= shutdown_delay:
-    #             frame = black_screen
-    #     if keyboard.is_pressed('space'):
-    #         frame = app_list[1].generate()
-    #     elif(frame is None ):
-    #         frame = black_screen
-    #
-    #     matrix.SetImage(frame)
-    #     time.sleep(0.08)
-
-
     def pressSpace():
         frame = app_list[1].generate()
-        while(frame is not None):
-            matrix.SetImage(frame)
-            time.sleep(0.08)
-            frame = app_list[1].generate()
+        try:
+            while(frame is not None):
 
-            #add other screens here
-            if keyboard.is_pressed('alt'):
-                return pressS()
+                    matrix.SetImage(frame)
+                    #time.sleep(0.08)
+                    frame = app_list[1].generate()
+
+                    #add other screens here
+                    if keyboard.is_pressed('alt'):
+                        return pressS()
+        except KeyboardInterrupt:
+            print("Time Loop Interrupted")
         return frame
 
     def pressS():
@@ -108,49 +95,50 @@ def main():
             frame, is_playing = app_list[0].generate()
             count += 1
             #print('no spotify')
-        while(frame is not None):
-            #print('got spotify')
-            frame, is_playing = app_list[0].generate()
-            if frame is not None:
-                if is_playing:
-                    last_active_time = math.floor(time.time())
-                elif current_time - last_active_time >= shutdown_delay:
-                    frame = black_screen
-            else:
-                frame = no_spotify_screen
-                is_playing = False
+        try:
+            while(frame is not None):
 
-            # add other screens here
-            if keyboard.is_pressed('space'):
-                return pressSpace()
+                    #print('got spotify')
+                    frame, is_playing = app_list[0].generate()
+                    if frame is not None:
+                        if is_playing:
+                            last_active_time = math.floor(time.time())
+                        elif current_time - last_active_time >= shutdown_delay:
+                            frame = black_screen
+                    else:
+                        frame = no_spotify_screen
+                        is_playing = False
 
-            matrix.SetImage(frame)
-            time.sleep(0.08)
+                    # add other screens here
+                    if keyboard.is_pressed('space'):
+                        return pressSpace()
 
-        # if frame != None:
-        #     matrix.SetImage(frame)
-        #     time.sleep(0.08)
-        #     return frame
+                    matrix.SetImage(frame)
+                    time.sleep(0.08)
+        except KeyboardInterrupt:
+            print("Spotify Loop Interrupted")
+            # if frame != None:
+            #     matrix.SetImage(frame)
+            #     time.sleep(0.08)
+            #     return frame
         return no_spotify_screen
 
 
     gloframe = None
+    try:
+        while (True):
+            if(gloframe is None):
+                print('gloframe is none')
+                gloframe = black_screen
+            if(gloframe is not None):
+                if(keyboard.is_pressed('space')):
+                    gloframe = pressSpace()
+                elif(keyboard.is_pressed('alt')):
+                    gloframe = pressS()
 
-    while (True):
-        if(gloframe is None):
-            print('gloframe is none')
-            gloframe = black_screen
-        if(gloframe is not None):
-            if(keyboard.is_pressed('space')):
-                switchedTime = math.floor(time.time())
-                gloframe = pressSpace()
-            elif(keyboard.is_pressed('alt')):
-                switchedTime = math.floor(time.time())
-                gloframe = pressS()
-
-            firstTime = math.floor(time.time())
-            matrix.SetImage(gloframe)
-            time.sleep(0.08)
+                matrix.SetImage(gloframe)
+    except KeyboardInterrupt:
+        print("Main Loop Interrupted")
 
 
 

@@ -10,6 +10,7 @@ class WeatherScreen:
     def __init__(self, config, modules):
         self.modules = modules
         self.font = ImageFont.truetype("fonts/tiny.otf", 5)
+        self.time_font = ImageFont.truetype("fonts/tiny.otf", 10)
 
         self.canvas_width = 64
         self.canvas_height = 64
@@ -51,7 +52,9 @@ class WeatherScreen:
             draw.text((3,24), 'HUMIDITY', self.text_color, font=self.font)
             draw.text((37,24), str(humidity) + '%', (82, 180, 255), font=self.font)
 
-            currentTime = datetime.now(tz=tz.tzlocal())
+
+            # This section prints out the Rise time to the display:
+            currentTime = datetime.now(tz.tzlocal())
             if (currentTime.hour > dtsr.hour and currentTime.hour <= dtss.hour):
                 draw.text((3,17), 'SET', self.text_color , font=self.font)
                 hours = dtss.hour % 12
@@ -69,15 +72,17 @@ class WeatherScreen:
                 frame.paste(self.icons[weather_icon_name], (40,1))
 
             # Dealing with time:
-            timeString = currentTime.strftime("%I:%M:%S %p")
-            dateString = currentTime.strftime("%a, %b %w")
+            timeString = currentTime.strftime("%I:%M%p")
+            dateString = currentTime.strftime("%a, %b %d")
 
             #to center text:
-            wD, hD = self.font.getsize(dateString)
-            wT, hT = self.font.getsize(timeString)
+            _, _, wD, hD = self.font.getbbox(dateString)
+            _, _, wT, hT = self.font.getbbox(timeString)
 
-            draw.text(((64-wT)/2, 40), timeString, self.text_color, font=self.font)
-            draw.text(((64 - wD) / 2, 47), dateString, (161, 255, 220), font=self.font)
+            # Draw the text for the current time:
+            draw.text((((64 - (2 * wT) + 1) / 2), 40), timeString, self.text_color, font=self.time_font)
+            # Draw the text for the date:
+            draw.text(((64 - wD) / 2, 55), dateString, (161, 255, 220), font=self.font)
         
         return frame
 
